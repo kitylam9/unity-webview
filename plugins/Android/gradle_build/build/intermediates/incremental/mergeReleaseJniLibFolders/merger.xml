@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="E:\Dev\UST\M2A\unity-webview-master\plugins\Android\gradle_build\src\main\jniLibs"/></dataSet><dataSet config="release"><source path="E:\Dev\UST\M2A\unity-webview-master\plugins\Android\gradle_build\src\release\jniLibs"/></dataSet></merger>
