@@ -65,6 +65,7 @@ import android.view.Surface;
 import java.nio.ByteBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+import java.io.ByteArrayOutputStream;
 
 class CWebViewPluginInterface {
     private CWebViewPlugin mPlugin;
@@ -134,6 +135,7 @@ class CustomRenderer implements GLSurfaceView.Renderer {
         return glTexture[0];
     }
 }
+
 class CustomWebView extends WebView   {
 
     private int scrollX = 0;
@@ -143,9 +145,17 @@ class CustomWebView extends WebView   {
     public Surface surface = null;
     public int websiteWidth = 1280;
     public int websiteHeight = 1280;
+    public boolean isBufferFinished=false;
+    Bitmap bitmap;
+    Canvas canvas;
+    ByteArrayOutputStream stream;
+    public byte[] Buffer;
 
     public CustomWebView(Context context, Surface ss) {
         super(context);
+        bitmap = Bitmap.createBitmap(websiteWidth, websiteHeight, Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(bitmap);
+        stream = new ByteArrayOutputStream();
     /*    surface=ss;
         if(surface==null){
             glSurfaceTex = Engine_CreateSurfaceTexture( websiteWidth, websiteHeight );
@@ -176,11 +186,15 @@ class CustomWebView extends WebView   {
     @Override
     public void draw(Canvas originCanvas) {
         if (surface != null) {
-                final Canvas surfaceCanvas = surface.lockCanvas(null); // Android canvas from surface
+            canvas = surface.lockCanvas(null);
+            //final Canvas canvas = surface.lockCanvas(null); // Android canvas from surface
 
-                super.onDraw(surfaceCanvas); // Call the WebView onDraw targetting the canvas
+            super.onDraw(canvas); // Call the WebView onDraw targetting the canvas
 
-                surface.unlockCanvasAndPost(surfaceCanvas); // We're done with the canvas!
+            surface.unlockCanvasAndPost(canvas); // We're done with the canvas!
+            Buffer = stream.toByteArray();
+            isBufferFinished=true;
+            stream.reset();
 
         }
     }
@@ -392,6 +406,14 @@ public class CWebViewPlugin   {
             renderer.surface=webView.surface;
         }});
 
+    }
+    public byte[] getBuffer(){
+        if(mWebView.isBufferFinished){
+            mWebView.isBufferFinished=false;
+            return  mWebView.Buffer;
+        }else{
+          return null;
+        }
     }
     public int getCurrTexId(){
         return renderer.getglSurfaceTex();
